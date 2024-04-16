@@ -1,11 +1,15 @@
 import { useState } from 'react'
+import { Button } from './components/common/Button/Button'
 
 export function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <button onClick={() => setCount((count) => count + 1)}>
-      count is {count}
-    </button>
+    <>
+    {count}
+    <Button onClick={() => setCount(count + 1)}>
+      Quero Adotar 
+    </Button>
+    </>
   )
 }
