@@ -8,16 +8,16 @@ export function Button({variant=ButtonVariant.Default , children, ...rest}:IButt
     let buttonClass = styles.buttonBase
     switch (variant){
         case ButtonVariant.Default:
-            buttonClass += `${styles.buttonDefault}`
+            buttonClass += ` ${styles.buttonDefault}`
             break
         case ButtonVariant.Outlined:
-            buttonClass += `${styles.buttonOutlined}`
+            buttonClass += ` ${styles.buttonOutlined}`
             break
         case ButtonVariant.Disabled:
-            buttonClass += `${styles.buttonDisabled}`
+            buttonClass += ` ${styles.buttonDisabled}`
             break
         case ButtonVariant.Text:
-            buttonClass += `${styles.buttonText}`
+            buttonClass += ` ${styles.buttonText}`
             break
     }
     return <button className={buttonClass}{...rest}>{children}</button>
