@@ -1,12 +1,16 @@
-import { Header } from "../../components/common/Header";
-import { Grid } from "../../components/layout/Grid";
-import styles from "./Pets.module.css"
-import { Card } from "../../components/common/Card";
 import Skeleton from "react-loading-skeleton";
-import { useQuery } from "@tanstack/react-query";
-import { getPets } from "../../services/pets/getPets";
-import { Pagination } from "../../components/common/Pagination";
 import { useSearchParams } from "react-router-dom";
+import { Button } from "../../components/common/Button";
+import { Card } from "../../components/common/Card";
+import { Header } from "../../components/common/Header";
+import { Pagination } from "../../components/common/Pagination";
+import { Select } from "../../components/common/Select";
+import { Grid } from "../../components/layout/Grid";
+import { usePetList } from "../../hooks/usePetList";
+import { GetPetsRequest } from "../../interfaces/pet";
+import { filterColumns } from "./Pets.constants";
+import styles from "./Pets.module.css";
+import { FormEvent } from "react";
 
 
 export function Pets() {
@@ -14,13 +18,17 @@ export function Pets() {
 
     const urlParams = {
         page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
+        type: searchParams.get('type') ?? '',
+        size: searchParams.get('size')?? '',
+        gender: searchParams.get('gender')?? '',
     }
 
-    const  {data,isLoading } = useQuery({
-        queryKey: ['get-pets', urlParams],
-        queryFn: () => getPets(urlParams),
-        staleTime: 100,
-    })
+    const {data, isLoading} = usePetList(urlParams)
+
+    function getFormValue(form: HTMLFormElement) {
+        const formData = new FormData(form)
+        return Object.fromEntries(formData)
+    }
 
     function changePage(page:number){
         setSearchParams((params) => {
@@ -30,10 +38,50 @@ export function Pets() {
 
     }
 
+    function updateSearchParams(urlParams: GetPetsRequest) {
+        const fields: (keyof GetPetsRequest)[] = ['type', 'size', 'gender']
+        const newParams = new URLSearchParams()
+    
+        fields.forEach((field) => {
+          if (urlParams[field]) {
+            newParams.set(field, String(urlParams[field]))
+          }
+        })
+        newParams.set('page', '1')
+    
+        return newParams
+      }
+    
+      function applyFilters(event: FormEvent) {
+        event.preventDefault()
+    
+        const formValues = getFormValue(event.target as HTMLFormElement)
+        const newSearchParams = updateSearchParams(formValues)
+    
+        setSearchParams(newSearchParams)
+      }
+
     return (
         <Grid>
             <div className={styles.container}>
             <Header/>
+
+            <form className={styles.filters} onSubmit={applyFilters}>
+                <div className={styles.columns}>
+                    {filterColumns.map((filter)=> (
+                    <div key={filter.name}className={styles.column}>
+                        <Select 
+                        label={filter.title} 
+                        defaultValue={urlParams[filter.name]} 
+                        name={filter.name} 
+                        options={filter.options}
+                        />
+                    </div>
+                    ))}
+                </div>
+                <Button type="submit">Buscar</Button>
+            </form>
+
             {isLoading && (
                 <Skeleton containerClassName={styles.skeleton} count={5}/>
             )}
