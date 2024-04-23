@@ -10,10 +10,12 @@ import { usePetList } from "../../hooks/usePetList";
 import { GetPetsRequest } from "../../interfaces/pet";
 import { filterColumns } from "./Pets.constants";
 import styles from "./Pets.module.css";
-import { FormEvent } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { ButtonVariant } from "../../components/common/Button/Button.constants";
 
 
 export function Pets() {
+    const [isButtonEnabled, setIsButtonEnabled] = useState(false)
     const [searchParams, setSearchParams] = useSearchParams()
 
     const urlParams = {
@@ -24,6 +26,20 @@ export function Pets() {
     }
 
     const {data, isLoading} = usePetList(urlParams)
+
+    function checkButtonStatus(event: ChangeEvent<HTMLFormElement>){
+        const { type,size,gender } = getFormValue(event.target.form)
+
+        if(
+            type !== urlParams.type || 
+            size !== urlParams.type ||
+            gender !== urlParams.type
+        ){
+            setIsButtonEnabled(true)
+        } else{
+            setIsButtonEnabled(false)
+        }
+    }
 
     function getFormValue(form: HTMLFormElement) {
         const formData = new FormData(form)
@@ -59,6 +75,7 @@ export function Pets() {
         const newSearchParams = updateSearchParams(formValues)
     
         setSearchParams(newSearchParams)
+        setIsButtonEnabled(false)
       }
 
     return (
@@ -66,7 +83,7 @@ export function Pets() {
             <div className={styles.container}>
             <Header/>
 
-            <form className={styles.filters} onSubmit={applyFilters}>
+            <form className={styles.filters} onSubmit={applyFilters} onChange={checkButtonStatus}>
                 <div className={styles.columns}>
                     {filterColumns.map((filter)=> (
                     <div key={filter.name}className={styles.column}>
@@ -79,7 +96,11 @@ export function Pets() {
                     </div>
                     ))}
                 </div>
-                <Button type="submit">Buscar</Button>
+                <Button 
+                type="submit" 
+                variant={ isButtonEnabled ? ButtonVariant.Default : ButtonVariant.Disabled}>
+                    Buscar
+                </Button>
             </form>
 
             {isLoading && (
@@ -90,7 +111,7 @@ export function Pets() {
                         data?.items.map((pet) => (
                             <Card 
                             key={pet.id}
-                            href={`/pet/${pet.id}`}
+                            href={`/pets/${pet.id}`}
                             text={pet.name} 
                             thumb={pet.photo} />
                         ))}
