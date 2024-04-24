@@ -86,7 +86,7 @@ export function Pets() {
             <form className={styles.filters} onSubmit={applyFilters} onChange={checkButtonStatus}>
                 <div className={styles.columns}>
                     {filterColumns.map((filter)=> (
-                    <div key={filter.name}className={styles.column}>
+                    <div key={filter.name} className={styles.column}>
                         <Select 
                         label={filter.title} 
                         defaultValue={urlParams[filter.name]} 
